@@ -8,7 +8,11 @@ const fetchMyIP = function() {
 
 const fetchCoordsByIP = function(body) {
   const ip = JSON.parse(body).ip;
-  return request(`https://freegeoip.app/json/${ip}`)
+  return request(`https://freegeoip.app/json/${ip}`);
 };
 
-module.exports = { fetchMyIP, fetchCoordsByIP };
+const fetchISSFlyOverTimes = function(body) {
+  const { latitude, longitude } = JSON.parse(body);
+  return request(`http://api.open-notify.org/iss-pass.json?lat=${latitude}&lon=${longitude}`);
+}
+module.exports = { fetchMyIP, fetchCoordsByIP, fetchISSFlyOverTimes };
