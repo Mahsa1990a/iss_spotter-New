@@ -24,9 +24,10 @@ const fetchMyIP = function(callback) {
       callback(Error(msg), null);
       return;
     }
-    const data = JSON.parse(body);
-    //console.log(data); //{ ip: '72.137.57.5' }
-    const ip = data.ip; //ip as sting 72.137.57.5
+    // const data = JSON.parse(body);
+    // //console.log(data); //{ ip: '72.137.57.5' }
+    // const ip = data.ip; //ip as sting 72.137.57.5
+    const ip = JSON.parse(body).ip;
     callback(null, ip);
 
   });
@@ -43,12 +44,15 @@ const fetchCoordsByIP = function(ip, callback) {
       callback(Error(msg), null);
       return;
     }
-    const data = JSON.parse(body);
-    const coords = {
-      Latitude: data.latitude, 
-      Longitude: data.longitude
-    }
-    callback(null, coords);
+    // const data = JSON.parse(body);
+    // const coords = {
+    //   Latitude: data.latitude, 
+    //   Longitude: data.longitude
+    // }
+    //console.log("body", body);
+    //console.log("JSON.parse(body)", JSON.parse(body));
+    const { latitude, longitude } = JSON.parse(body);
+    callback(null, { latitude, longitude });
   });
 };
 
@@ -64,10 +68,31 @@ const fetchISSFlyOverTimes = function(coords, callback) {
       callback(Error(msg), null);
       return;
     }
-    const data = JSON.parse(body);
-    let pases = data.response;
-    callback(null, pases);
+    // const data = JSON.parse(body);
+    // const pases = data.response;
+    const passes = JSON.parse(body).response;
+    callback(null, passes);
   });
-}
+};
 
-module.exports = { fetchMyIP, fetchCoordsByIP, fetchISSFlyOverTimes };
+const nextISSTimesForMyLocation = function(callback) {
+  fetchMyIP((error, ip) => {
+    if (error) {
+      return callback(error, null);
+    }
+    fetchCoordsByIP(ip, (error, loc) => {
+      if (error) {
+        return callback (error, null);
+      }
+      fetchISSFlyOverTimes(loc, (error, passTimes) => {
+        if (error) {
+          return callback (error, null);
+        }
+        callback(null, passTimes);
+      });
+    });
+  });
+};
+
+//module.exports = { fetchMyIP, fetchCoordsByIP, fetchISSFlyOverTimes, nextISSTimesForMyLocation };
+module.exports = { nextISSTimesForMyLocation };
